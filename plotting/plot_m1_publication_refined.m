@@ -246,33 +246,64 @@ end
 
 function plot_refined_safety(d, C, outDir)
     fig = figure('Name', 'Refined safety', 'Units', 'centimeters', ...
-        'Position', [2, 2, 16.2, 9.2]);
-    ax = axes(fig); hold(ax, 'on'); box(ax, 'on'); grid(ax, 'on');
+        'Position', [2, 2, 17.2, 9.4]);
+    tl = tiledlayout(fig, 1, 1, 'Padding', 'compact', 'TileSpacing', 'compact');
+    ax = nexttile(tl); hold(ax, 'on'); box(ax, 'on'); grid(ax, 'on');
     style_axes(ax);
+    ax.GridAlpha = 0.16;
+    ax.MinorGridAlpha = 0.05;
 
-    pairColors = lines(size(d.pairDist, 2));
+    % A subtle phase wash separates the post-reconfiguration interval.
+    patch(ax, [d.switchTime 80 80 d.switchTime], [8 8 65 65], ...
+        [0.91 0.95 0.97], 'FaceAlpha', 0.34, 'EdgeColor', 'none', ...
+        'HandleVisibility', 'off');
+
+    pairColors = safety_pair_colors(size(d.pairDist, 2));
+    hActive = gobjects(1);
+    hRemoved = gobjects(1);
     for k = 1:size(d.pairDist, 2)
-        plot(ax, d.t, d.pairDist(:,k), '-', 'Color', [pairColors(k,:) 0.45], ...
-            'LineWidth', 1.0, 'HandleVisibility', 'off');
+        pair = d.pairs(k,:);
+        involvesRemoved = any(~d.activeAfter(pair));
+        plot(ax, d.t, d.pairDist(:,k), '-', ...
+            'Color', [pairColors(k,:) 0.54], 'LineWidth', 0.95, ...
+            'HandleVisibility', 'off');
+        if ~isgraphics(hActive)
+            hActive = plot(ax, NaN, NaN, '-', 'Color', [0.18 0.57 0.68], ...
+                'LineWidth', 1.35, 'DisplayName', 'Active pair distances');
+        end
+        if involvesRemoved
+            postMask = d.t >= d.switchTime;
+            plot(ax, d.t(postMask), d.pairDistAll(postMask,k), '--', ...
+                'Color', [pairColors(k,:) 0.76], 'LineWidth', 1.05, ...
+                'HandleVisibility', 'off');
+            if ~isgraphics(hRemoved)
+                hRemoved = plot(ax, NaN, NaN, '--', 'Color', [0.57 0.34 0.68], ...
+                    'LineWidth', 1.35, 'DisplayName', 'Pairs involving removed USVs');
+            end
+        end
     end
-    plot(ax, d.t, d.minPairActive, '-', 'Color', C.blue, 'LineWidth', 2.2, ...
+    hMin = plot(ax, d.t, d.minPairActive, '-', 'Color', [0.025 0.30 0.43], ...
+        'LineWidth', 2.45, ...
         'DisplayName', 'Minimum active distance');
-    yline(ax, 10, '--', 'Color', C.red, 'LineWidth', 1.3, ...
+    hAvoid = yline(ax, 10, '--', 'Color', [0.88 0.25 0.28], 'LineWidth', 1.45, ...
         'DisplayName', '$d_{\rm avoid}=10$ m');
     inactiveIds = find(~d.activeAfter);
     eventText = sprintf('USVs %s misbehave (removed)', ...
         strjoin(string(inactiveIds), ', '));
     xline(ax, d.switchTime, '-.', 'Color', C.dark, 'LineWidth', 1.2, ...
         'HandleVisibility', 'off');
-    plot(ax, d.switchTime, 67, 'v', 'Color', C.dark, 'MarkerFaceColor', C.dark, ...
+    plot(ax, d.switchTime, 60, 'v', 'Color', C.dark, 'MarkerFaceColor', C.dark, ...
         'MarkerSize', 6, 'HandleVisibility', 'off');
-    text(ax, d.switchTime + 1.2, 65.5, eventText, 'FontSize', 8.5, ...
+    text(ax, d.switchTime + 1.2, 59, eventText, 'FontSize', 8.5, ...
         'HorizontalAlignment', 'left', 'VerticalAlignment', 'top');
     xlabel(ax, 'Time (s)');
     ylabel(ax, 'Inter-USV distance (m)');
     xlim(ax, [0 80]);
-    ylim(ax, [8 80]);
-    legend(ax, 'Location', 'northeast', 'Box', 'off');
+    ylim(ax, [8 65]);
+    lgd = legend(ax, [hActive hRemoved hMin hAvoid], ...
+        'Orientation', 'horizontal', 'NumColumns', 4, ...
+        'Box', 'off', 'FontSize', 8.2);
+    lgd.Layout.Tile = 'north';
     save_refined(fig, outDir, 'FigR5_Safety_Refined');
 end
 
@@ -318,7 +349,7 @@ function d = load_case(modelName)
     obsErrMasked = obsErr;
     obsErrMasked(~validMask) = NaN;
 
-    [pairDist, minPair] = pair_distances(pAgent, validMask);
+    [pairDist, minPair, pairDistAll, pairs] = pair_distances(pAgent, validMask);
 
     d = struct();
     d.t = t;
@@ -338,17 +369,21 @@ function d = load_case(modelName)
     d.obsMaxActive = max(obsErrMasked, [], 2, 'omitnan');
     d.obsMeanActive = mean(obsErrMasked, 2, 'omitnan');
     d.pairDist = pairDist;
+    d.pairDistAll = pairDistAll;
+    d.pairs = pairs;
     d.minPairActive = minPair;
 end
 
-function [pairDist, minPair] = pair_distances(pAgent, validMask)
+function [pairDist, minPair, pairDistAll, pairs] = pair_distances(pAgent, validMask)
     pairs = nchoosek(1:6, 2);
     numPts = size(pAgent, 1);
     pairDist = nan(numPts, size(pairs,1));
+    pairDistAll = nan(numPts, size(pairs,1));
     for k = 1:size(pairs,1)
         i = pairs(k,1);
         j = pairs(k,2);
         d = vecnorm(pAgent(:,:,i) - pAgent(:,:,j), 2, 2);
+        pairDistAll(:,k) = d;
         d(~(validMask(:,i) & validMask(:,j))) = NaN;
         pairDist(:,k) = d;
     end
@@ -407,6 +442,17 @@ function C = refined_colors()
     C.dark = [0.15 0.15 0.15];
     C.snapshot = [0.78 0.05 0.08];
     C.boundFill = [0.82 0.86 0.90];
+end
+
+function colors = safety_pair_colors(n)
+    anchors = [0.08 0.46 0.70;
+               0.10 0.66 0.58;
+               0.95 0.70 0.20;
+               0.88 0.34 0.32;
+               0.52 0.34 0.70];
+    colors = interp1(linspace(0, 1, size(anchors,1)), anchors, ...
+        linspace(0, 1, n), 'pchip');
+    colors = min(max(colors, 0), 1);
 end
 
 function set_refined_defaults()
