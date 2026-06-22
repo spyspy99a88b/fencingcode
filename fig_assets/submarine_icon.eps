@@ -1,0 +1,90 @@
+%!PS-Adobe-3.0 EPSF-3.0
+%%BoundingBox: 0 0 160 90
+%%Title: Submarine target schematic icon
+%%Creator: Codex
+%%Pages: 1
+%%EndComments
+/m {moveto} bind def
+/l {lineto} bind def
+/c {curveto} bind def
+/cp {closepath} bind def
+/s {stroke} bind def
+/f {fill} bind def
+/gs {gsave} bind def
+/gr {grestore} bind def
+/rgb {setrgbcolor} bind def
+/lw {setlinewidth} bind def
+/lc {setlinecap} bind def
+/lj {setlinejoin} bind def
+1 lj 1 lc
+
+% faint water reference lines
+gs
+0.48 0.61 0.67 rgb
+1.6 lw
+newpath 18 64 m 50 60 84 60 124 64 c s
+newpath 30 20 m 70 16 107 16 140 20 c s
+gr
+
+% propeller blades
+gs
+0.35 0.19 0.15 rgb
+newpath 21 45 m 8 55 l 7 45 l 8 35 l cp f
+newpath 24 45 m 13 31 l 25 35 l 34 45 l cp f
+newpath 24 45 m 13 59 l 25 55 l 34 45 l cp f
+gr
+
+% body shadow
+gs
+0.18 0.10 0.09 rgb
+newpath 24 39 m 41 23 108 23 136 39 c 146 45 146 51 136 55 c 106 68 42 65 24 51 c 16 45 16 43 24 39 c cp f
+gr
+
+% main body
+gs
+0.55 0.16 0.12 rgb
+newpath 22 43 m 42 27 108 27 137 42 c 148 48 148 54 137 59 c 106 71 43 67 22 54 c 13 49 13 47 22 43 c cp f
+gr
+
+% upper highlight
+gs
+0.88 0.38 0.22 rgb
+newpath 34 44 m 56 34 103 34 128 44 c 136 47 136 50 128 52 c 96 47 62 47 34 52 c 27 50 27 47 34 44 c cp f
+gr
+
+% conning tower
+gs
+0.40 0.12 0.11 rgb
+newpath 72 60 m 80 77 l 106 77 l 114 59 l cp f
+gr
+gs
+0.76 0.28 0.19 rgb
+newpath 80 66 m 86 73 l 103 73 l 108 65 l cp f
+gr
+
+% periscope
+gs
+0.22 0.13 0.12 rgb
+3 lw
+newpath 93 77 m 93 84 l 111 84 l s
+gr
+
+% portholes
+gs
+0.97 0.78 0.45 rgb
+newpath 58 51 m 58 54 61 57 64 57 c 68 57 70 54 70 51 c 70 48 68 45 64 45 c 61 45 58 48 58 51 c f
+newpath 82 52 m 82 55 85 58 88 58 c 92 58 94 55 94 52 c 94 49 92 46 88 46 c 85 46 82 49 82 52 c f
+newpath 106 52 m 106 55 109 58 112 58 c 116 58 118 55 118 52 c 118 49 116 46 112 46 c 109 46 106 49 106 52 c f
+gr
+
+% target mark
+gs
+0.98 0.92 0.72 rgb
+1.6 lw
+newpath 133 50 m 143 50 l s
+newpath 138 45 m 138 55 l s
+newpath 138 42 146 42 146 50 c 146 58 138 58 138 58 c 130 58 130 50 130 50 c 130 42 138 42 138 42 c s
+gr
+
+showpage
+%%EOF

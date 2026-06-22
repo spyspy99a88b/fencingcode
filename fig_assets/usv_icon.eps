@@ -1,0 +1,88 @@
+%!PS-Adobe-3.0 EPSF-3.0
+%%BoundingBox: 0 0 160 90
+%%Title: USV schematic icon
+%%Creator: Codex
+%%Pages: 1
+%%EndComments
+/m {moveto} bind def
+/l {lineto} bind def
+/c {curveto} bind def
+/cp {closepath} bind def
+/s {stroke} bind def
+/f {fill} bind def
+/gs {gsave} bind def
+/gr {grestore} bind def
+/rgb {setrgbcolor} bind def
+/lw {setlinewidth} bind def
+/lc {setlinecap} bind def
+/lj {setlinejoin} bind def
+1 lj 1 lc
+
+% soft wake lines
+gs
+0.45 0.63 0.74 rgb
+2 lw
+newpath 18 18 m 50 12 86 12 122 18 c s
+newpath 28 10 m 58 6 98 6 132 11 c s
+gr
+
+% hull shadow
+gs
+0.03 0.15 0.22 rgb
+newpath 28 32 m 42 17 l 125 17 l 145 36 l 129 45 l 47 45 l cp f
+gr
+
+% main hull
+gs
+0.02 0.35 0.56 rgb
+newpath 20 40 m 40 24 l 121 24 l 146 43 l 127 54 l 44 54 l cp f
+gr
+
+% hull highlight
+gs
+0.18 0.65 0.82 rgb
+newpath 34 44 m 48 34 l 118 34 l 133 44 l 123 48 l 47 48 l cp f
+gr
+
+% bow deck
+gs
+0.77 0.91 0.95 rgb
+newpath 105 50 m 124 44 l 137 46 l 124 52 l cp f
+gr
+
+% cabin
+gs
+0.88 0.95 0.98 rgb
+newpath 58 54 m 70 69 l 104 69 l 116 54 l cp f
+gr
+
+% cabin window
+gs
+0.05 0.24 0.35 rgb
+newpath 74 63 m 82 63 l 82 57 l 69 57 l cp f
+newpath 88 63 m 101 63 l 106 57 l 88 57 l cp f
+gr
+
+% mast and sensor
+gs
+0.08 0.18 0.25 rgb
+3 lw
+newpath 87 69 m 87 81 l s
+2 lw
+newpath 76 78 m 98 78 l s
+newpath 87 81 m 93 86 l s
+gr
+gs
+0.95 0.40 0.15 rgb
+newpath 91 85 m 93 83 l 95 85 l 93 87 l cp f
+gr
+
+% deck line
+gs
+0.92 0.98 1.00 rgb
+1.8 lw
+newpath 40 54 m 126 54 l s
+gr
+
+showpage
+%%EOF
