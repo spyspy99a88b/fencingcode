@@ -71,11 +71,16 @@ function plot_spatiotemporal_trajectory(d, C, outDir)
         patch(ax, xPoly, yPoly, zPoly, timeColor, 'FaceAlpha', 0.18, ...
             'EdgeColor', timeColor, 'LineWidth', 2.35, 'HandleVisibility', 'off');
         if ts == 0
-            draw_submarine_icon_3d(ax, d.p0(k,1), d.p0(k,2), d.t(k), 0, 24);
-            for ii = 1:numel(active)
-                hdg = atan2(d.p0(k,2)-ySnap(ii), d.p0(k,1)-xSnap(ii));
-                draw_usv_icon_3d(ax, xSnap(ii), ySnap(ii), d.t(k), hdg, 18);
-            end
+            scatter3(ax, d.p0(k,1), d.p0(k,2), d.t(k)+0.85, ...
+                92, [0.88 0.16 0.12], 'filled', ...
+                'MarkerFaceAlpha', 0.46, 'MarkerEdgeAlpha', 0.82, ...
+                'MarkerEdgeColor', [0.52 0.06 0.05], 'LineWidth', 0.95, ...
+                'HandleVisibility', 'off');
+            scatter3(ax, xSnap, ySnap, repmat(d.t(k)+0.72,numel(active),1), ...
+                54, repmat(timeColor,numel(active),1), 'filled', ...
+                'MarkerFaceAlpha', 0.50, 'MarkerEdgeAlpha', 0.86, ...
+                'MarkerEdgeColor', [0.12 0.15 0.18], 'LineWidth', 0.75, ...
+                'HandleVisibility', 'off');
         else
             scatter3(ax, xSnap, ySnap, repmat(d.t(k),numel(active),1), ...
                 42, repmat(timeColor,numel(active),1), 'filled', ...
@@ -102,102 +107,6 @@ function plot_spatiotemporal_trajectory(d, C, outDir)
     cb.Label.String = 'Time (s)';
     clim(ax, [d.t(1) d.t(end)]);
     save_figure(fig, outDir, 'FigH1_Spatiotemporal_Trajectory');
-end
-
-function draw_usv_icon_3d(ax, x0, y0, z0, heading, width)
-    % Geometry and colors follow fig_assets/usv_icon.eps.
-    z = z0 + 1.15;
-    draw_icon_stroke(ax, x0, y0, z, heading, width, ...
-        bezier_path([18 18], [50 12], [86 12], [122 18], 40), [0.45 0.63 0.74], 0.55);
-    draw_icon_stroke(ax, x0, y0, z, heading, width, ...
-        bezier_path([28 10], [58 6], [98 6], [132 11], 40), [0.45 0.63 0.74], 0.50);
-    draw_icon_patch(ax, x0, y0, z, heading, width, ...
-        [28 32; 42 17; 125 17; 145 36; 129 45; 47 45], [0.03 0.15 0.22], 0.92);
-    draw_icon_patch(ax, x0, y0, z, heading, width, ...
-        [20 40; 40 24; 121 24; 146 43; 127 54; 44 54], [0.02 0.35 0.56], 0.98);
-    draw_icon_patch(ax, x0, y0, z, heading, width, ...
-        [34 44; 48 34; 118 34; 133 44; 123 48; 47 48], [0.18 0.65 0.82], 0.98);
-    draw_icon_patch(ax, x0, y0, z, heading, width, ...
-        [105 50; 124 44; 137 46; 124 52], [0.77 0.91 0.95], 0.98);
-    draw_icon_patch(ax, x0, y0, z, heading, width, ...
-        [58 54; 70 69; 104 69; 116 54], [0.88 0.95 0.98], 0.98);
-    draw_icon_patch(ax, x0, y0, z, heading, width, ...
-        [74 63; 82 63; 82 57; 69 57], [0.05 0.24 0.35], 0.98);
-    draw_icon_patch(ax, x0, y0, z, heading, width, ...
-        [88 63; 101 63; 106 57; 88 57], [0.05 0.24 0.35], 0.98);
-    draw_icon_stroke(ax, x0, y0, z, heading, width, [87 69; 87 81], [0.08 0.18 0.25], 0.85);
-    draw_icon_stroke(ax, x0, y0, z, heading, width, [76 78; 98 78], [0.08 0.18 0.25], 0.65);
-    draw_icon_stroke(ax, x0, y0, z, heading, width, [87 81; 93 86], [0.08 0.18 0.25], 0.65);
-    draw_icon_patch(ax, x0, y0, z, heading, width, ...
-        [91 85; 93 83; 95 85; 93 87], [0.95 0.40 0.15], 0.98);
-    draw_icon_stroke(ax, x0, y0, z, heading, width, [40 54; 126 54], [0.92 0.98 1.00], 0.45);
-end
-
-function draw_submarine_icon_3d(ax, x0, y0, z0, heading, width)
-    % Geometry and colors follow fig_assets/submarine_icon.eps.
-    z = z0 + 1.20;
-    draw_icon_stroke(ax, x0, y0, z, heading, width, ...
-        bezier_path([18 64], [50 60], [84 60], [124 64], 40), [0.48 0.61 0.67], 0.45);
-    draw_icon_stroke(ax, x0, y0, z, heading, width, ...
-        bezier_path([30 20], [70 16], [107 16], [140 20], 40), [0.48 0.61 0.67], 0.45);
-    draw_icon_patch(ax, x0, y0, z, heading, width, [21 45; 8 55; 7 45; 8 35], [0.35 0.19 0.15], 0.95);
-    draw_icon_patch(ax, x0, y0, z, heading, width, [24 45; 13 31; 25 35; 34 45], [0.35 0.19 0.15], 0.95);
-    draw_icon_patch(ax, x0, y0, z, heading, width, [24 45; 13 59; 25 55; 34 45], [0.35 0.19 0.15], 0.95);
-    bodyShadow = [bezier_path([24 39],[41 23],[108 23],[136 39],24); ...
-                  bezier_path([136 39],[146 45],[146 51],[136 55],16); ...
-                  bezier_path([136 55],[106 68],[42 65],[24 51],24); ...
-                  bezier_path([24 51],[16 45],[16 43],[24 39],16)];
-    draw_icon_patch(ax, x0, y0, z, heading, width, bodyShadow, [0.18 0.10 0.09], 0.95);
-    body = [bezier_path([22 43],[42 27],[108 27],[137 42],24); ...
-            bezier_path([137 42],[148 48],[148 54],[137 59],16); ...
-            bezier_path([137 59],[106 71],[43 67],[22 54],24); ...
-            bezier_path([22 54],[13 49],[13 47],[22 43],16)];
-    draw_icon_patch(ax, x0, y0, z, heading, width, body, [0.55 0.16 0.12], 0.98);
-    highlight = [bezier_path([34 44],[56 34],[103 34],[128 44],22); ...
-                 bezier_path([128 44],[136 47],[136 50],[128 52],12); ...
-                 bezier_path([128 52],[96 47],[62 47],[34 52],22); ...
-                 bezier_path([34 52],[27 50],[27 47],[34 44],12)];
-    draw_icon_patch(ax, x0, y0, z, heading, width, highlight, [0.88 0.38 0.22], 0.98);
-    draw_icon_patch(ax, x0, y0, z, heading, width, [72 60; 80 77; 106 77; 114 59], [0.40 0.12 0.11], 0.98);
-    draw_icon_patch(ax, x0, y0, z, heading, width, [80 66; 86 73; 103 73; 108 65], [0.76 0.28 0.19], 0.98);
-    draw_icon_stroke(ax, x0, y0, z, heading, width, [93 77; 93 84; 111 84], [0.22 0.13 0.12], 0.65);
-    draw_icon_patch(ax, x0, y0, z, heading, width, ellipse_path(64, 51, 6, 6, 30), [0.97 0.78 0.45], 0.98);
-    draw_icon_patch(ax, x0, y0, z, heading, width, ellipse_path(88, 52, 6, 6, 30), [0.97 0.78 0.45], 0.98);
-    draw_icon_patch(ax, x0, y0, z, heading, width, ellipse_path(112, 52, 6, 6, 30), [0.97 0.78 0.45], 0.98);
-    draw_icon_stroke(ax, x0, y0, z, heading, width, [133 50; 143 50], [0.98 0.92 0.72], 0.45);
-    draw_icon_stroke(ax, x0, y0, z, heading, width, [138 45; 138 55], [0.98 0.92 0.72], 0.45);
-    draw_icon_stroke(ax, x0, y0, z, heading, width, ellipse_path(138, 50, 8, 8, 60), [0.98 0.92 0.72], 0.45);
-end
-
-function draw_icon_patch(ax, x0, y0, z0, heading, width, pts, color, alphaVal)
-    [x, y] = icon_transform(pts, x0, y0, heading, width);
-    patch(ax, x, y, z0*ones(size(x)), color, 'FaceAlpha', alphaVal, ...
-        'EdgeColor', 'none', 'HandleVisibility', 'off');
-end
-
-function draw_icon_stroke(ax, x0, y0, z0, heading, width, pts, color, lineWidth)
-    [x, y] = icon_transform(pts, x0, y0, heading, width);
-    plot3(ax, x, y, z0*ones(size(x)), '-', 'Color', color, ...
-        'LineWidth', lineWidth, 'HandleVisibility', 'off');
-end
-
-function [x, y] = icon_transform(pts, x0, y0, heading, width)
-    scale = width/160;
-    centered = [(pts(:,1)-80)*scale, (pts(:,2)-45)*scale];
-    R = [cos(heading) -sin(heading); sin(heading) cos(heading)];
-    rotated = centered*R.';
-    x = x0 + rotated(:,1);
-    y = y0 + rotated(:,2);
-end
-
-function pts = bezier_path(p0, p1, p2, p3, n)
-    u = linspace(0, 1, n).';
-    pts = (1-u).^3*p0 + 3*(1-u).^2.*u*p1 + 3*(1-u).*u.^2*p2 + u.^3*p3;
-end
-
-function pts = ellipse_path(cx, cy, rx, ry, n)
-    th = linspace(0, 2*pi, n).';
-    pts = [cx + rx*cos(th), cy + ry*sin(th)];
 end
 
 function oceanHandle = draw_ocean_floor(ax, d)
