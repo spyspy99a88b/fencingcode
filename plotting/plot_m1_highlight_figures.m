@@ -88,8 +88,6 @@ function plot_spatiotemporal_trajectory(d, C, outDir)
             'FontWeight', 'bold', 'Color', timeColor, ...
             'HorizontalAlignment', 'left', 'VerticalAlignment', 'middle');
     end
-    annotate_misbehavior_event(ax, d);
-
     xlabel(ax, '$x$ (m)'); ylabel(ax, '$y$ (m)'); zlabel(ax, 'Time (s)');
     title(ax, 'Spatiotemporal evolution of the enclosing formation', ...
         'FontWeight', 'normal');
@@ -104,23 +102,6 @@ function plot_spatiotemporal_trajectory(d, C, outDir)
     cb.Label.String = 'Time (s)';
     clim(ax, [d.t(1) d.t(end)]);
     save_figure(fig, outDir, 'FigH1_Spatiotemporal_Trajectory');
-end
-
-function annotate_misbehavior_event(ax, d)
-    [~, k45] = min(abs(d.t-45));
-    active45 = find(d.validMask(k45,:));
-    xSnap = reshape(d.pAgent(k45,1,active45), [], 1);
-    ySnap = reshape(d.pAgent(k45,2,active45), [], 1);
-    xText = min(xSnap) - 138;
-    yText = max(ySnap) + 22;
-    zText = d.t(k45) + 4.5;
-    text(ax, xText, yText, zText, ...
-        {'$t=50$ s'; 'USV5, USV6 misbehaved'}, ...
-        'FontSize', 7.8, 'FontWeight', 'bold', ...
-        'Color', [0.72 0.08 0.10], ...
-        'HorizontalAlignment', 'left', ...
-        'VerticalAlignment', 'middle', ...
-        'HandleVisibility', 'off');
 end
 
 function draw_usv_icon_3d(ax, x0, y0, z0, heading, width)
