@@ -70,9 +70,18 @@ function plot_spatiotemporal_trajectory(d, C, outDir)
         timeColor = interp1(linspace(d.t(1),d.t(end),256), timeMap, d.t(k));
         patch(ax, xPoly, yPoly, zPoly, timeColor, 'FaceAlpha', 0.18, ...
             'EdgeColor', timeColor, 'LineWidth', 2.35, 'HandleVisibility', 'off');
-        scatter3(ax, xSnap, ySnap, repmat(d.t(k),numel(active),1), ...
-            42, repmat(timeColor,numel(active),1), 'filled', ...
-            'MarkerEdgeColor', 'none', 'HandleVisibility', 'off');
+        if ts == 0
+            draw_target_icon_3d(ax, d.p0(k,1), d.p0(k,2), d.t(k), 4.7);
+            for ii = 1:numel(active)
+                usvId = active(ii);
+                hdg = atan2(d.p0(k,2)-ySnap(ii), d.p0(k,1)-xSnap(ii));
+                draw_usv_icon_3d(ax, xSnap(ii), ySnap(ii), d.t(k), hdg, C(usvId,:), 4.8);
+            end
+        else
+            scatter3(ax, xSnap, ySnap, repmat(d.t(k),numel(active),1), ...
+                42, repmat(timeColor,numel(active),1), 'filled', ...
+                'MarkerEdgeColor', 'none', 'HandleVisibility', 'off');
+        end
         labelX = max(xSnap)+20;
         maxLabelX = max(maxLabelX, labelX);
         text(ax, labelX, mean(ySnap), d.t(k), ...
@@ -80,11 +89,6 @@ function plot_spatiotemporal_trajectory(d, C, outDir)
             'FontWeight', 'bold', 'Color', timeColor, ...
             'HorizontalAlignment', 'left', 'VerticalAlignment', 'middle');
     end
-
-    [~, ks] = min(abs(d.t-d.switchTime));
-    plot3(ax, d.p0(ks,1), d.p0(ks,2), d.switchTime, 'p', ...
-        'MarkerSize', 11, 'MarkerFaceColor', [0.85 0.12 0.12], ...
-        'MarkerEdgeColor', 'w', 'LineWidth', 0.8, 'HandleVisibility', 'off');
 
     xlabel(ax, '$x$ (m)'); ylabel(ax, '$y$ (m)'); zlabel(ax, 'Time (s)');
     title(ax, 'Spatiotemporal evolution of the enclosing formation', ...
@@ -100,6 +104,35 @@ function plot_spatiotemporal_trajectory(d, C, outDir)
     cb.Label.String = 'Time (s)';
     clim(ax, [d.t(1) d.t(end)]);
     save_figure(fig, outDir, 'FigH1_Spatiotemporal_Trajectory');
+end
+
+function draw_target_icon_3d(ax, x0, y0, z0, scale)
+    th = linspace(0, 2*pi, 80);
+    red = [0.86 0.10 0.12];
+    fill3(ax, x0 + scale*cos(th), y0 + scale*sin(th), z0 + 0.65*ones(size(th)), ...
+        [1.00 0.78 0.74], 'FaceAlpha', 0.94, 'EdgeColor', red, ...
+        'LineWidth', 1.25, 'HandleVisibility', 'off');
+    plot3(ax, x0 + 0.58*scale*cos(th), y0 + 0.58*scale*sin(th), ...
+        z0 + 0.68*ones(size(th)), '-', 'Color', red, 'LineWidth', 1.05, ...
+        'HandleVisibility', 'off');
+    plot3(ax, [x0-scale x0+scale], [y0 y0], [z0+0.70 z0+0.70], '-', ...
+        'Color', red, 'LineWidth', 1.05, 'HandleVisibility', 'off');
+    plot3(ax, [x0 x0], [y0-scale y0+scale], [z0+0.70 z0+0.70], '-', ...
+        'Color', red, 'LineWidth', 1.05, 'HandleVisibility', 'off');
+end
+
+function draw_usv_icon_3d(ax, x0, y0, z0, heading, color, scale)
+    hull = scale .* [1.10 0.00; 0.32 0.56; -0.92 0.38; -0.68 0.00; -0.92 -0.38; 0.32 -0.56];
+    deck = scale .* [0.32 0.00; -0.25 0.23; -0.50 0.00; -0.25 -0.23];
+    R = [cos(heading) -sin(heading); sin(heading) cos(heading)];
+    hull = hull*R.';
+    deck = deck*R.';
+    patch(ax, x0+hull(:,1), y0+hull(:,2), z0+0.82*ones(size(hull,1),1), color, ...
+        'FaceAlpha', 0.98, 'EdgeColor', [0.10 0.13 0.16], 'LineWidth', 0.75, ...
+        'HandleVisibility', 'off');
+    patch(ax, x0+deck(:,1), y0+deck(:,2), z0+0.88*ones(size(deck,1),1), ...
+        min(color+0.30, 1), 'FaceAlpha', 0.82, 'EdgeColor', 'none', ...
+        'HandleVisibility', 'off');
 end
 
 function oceanHandle = draw_ocean_floor(ax, d)
