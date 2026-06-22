@@ -114,6 +114,11 @@ function annotate_misbehavior_event(ax, d)
     [~, k50] = min(abs(d.t-d.switchTime));
     arrowStart = [xText + 34, yText - 4, zText - 0.5];
     arrowEnd = [d.p0(k50,1), d.p0(k50,2), d.t(k50)];
+    arrowStart = arrowStart + 0.33*(arrowEnd - arrowStart);
+    arrowEnd = arrowStart + 0.67*(arrowEnd - arrowStart);
+    arrowShift = -0.16*(arrowEnd - arrowStart);
+    arrowStart = arrowStart + arrowShift;
+    arrowEnd = arrowEnd + arrowShift;
     arrowVec = arrowEnd - arrowStart;
     quiver3(ax, arrowStart(1), arrowStart(2), arrowStart(3), ...
         arrowVec(1), arrowVec(2), arrowVec(3), 0, ...
