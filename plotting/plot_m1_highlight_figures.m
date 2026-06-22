@@ -98,7 +98,9 @@ function plot_spatiotemporal_trajectory(d, C, outDir)
         'FontWeight', 'normal');
     view(ax, 42, 26); axis(ax, 'tight');
     xBounds = xlim(ax);
-    xlim(ax, [xBounds(1), max(xBounds(2),maxLabelX+15)]);
+    yBounds = ylim(ax);
+    xlim(ax, [xBounds(1)-7, max(xBounds(2)+4,maxLabelX+16)]);
+    ylim(ax, [yBounds(1)-8, yBounds(2)+8]);
     uistack(oceanHandle, 'bottom');
     ax.GridAlpha = 0.18;
     legend(ax, [h; findobj(ax,'DisplayName','Target')], ...
