@@ -184,11 +184,15 @@ function plot_refined_control_zoom(d, C, outDir)
 
     ax1 = nexttile(tl, 1); hold(ax1, 'on'); box(ax1, 'on'); grid(ax1, 'on');
     style_axes(ax1);
+    hTau = gobjects(6,1);
     for i = 1:6
         valid = d.validMask(:,i);
-        plot(ax1, d.t(valid), tauU(valid,i), 'Color', C.agent(i,:), 'LineWidth', 1.0);
+        hTau(i) = plot(ax1, d.t(valid), tauU(valid,i), ...
+            'Color', C.agent(i,:), 'LineWidth', 1.0, ...
+            'DisplayName', sprintf('USV%d',i));
     end
-    yline(ax1, d.tauULimit, 'r--', 'LineWidth', 1.1, 'HandleVisibility', 'off');
+    hLimit = yline(ax1, d.tauULimit, 'r--', 'LineWidth', 1.1, ...
+        'DisplayName', 'Actuator limits');
     yline(ax1, -d.tauULimit, 'r--', 'LineWidth', 1.1, 'HandleVisibility', 'off');
     xlim(ax1, [0 80]); ylim(ax1, 1.25 * [-d.tauULimit d.tauULimit]);
     ylabel(ax1, '$\tau_{u,i}$ (N)');
@@ -208,6 +212,10 @@ function plot_refined_control_zoom(d, C, outDir)
     plot_control_inset(insetU, d, tauU, C, zoomWin, '$\tau_{u,i}$');
     insetR = axes(fig, 'Position', [0.785 0.335 0.145 0.115]);
     plot_control_inset(insetR, d, tauR, C, zoomWin, '$\tau_{r,i}$');
+
+    lgd = legend(ax1, [hTau;hLimit], 'Orientation', 'horizontal', ...
+        'NumColumns', 4, 'Box', 'off', 'FontSize', 8.5);
+    lgd.Layout.Tile = 'south';
 
     save_refined(fig, outDir, 'FigR4_ControlZoom_Refined');
 end
