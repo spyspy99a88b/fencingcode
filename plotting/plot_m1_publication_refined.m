@@ -214,8 +214,8 @@ function plot_refined_control_zoom(d, C, outDir)
     plot_control_inset(insetR, d, tauR, C, zoomWin, '$\tau_{r,i}$');
 
     lgd = legend(ax1, [hTau;hLimit], 'Orientation', 'horizontal', ...
-        'NumColumns', 4, 'Box', 'off', 'FontSize', 8.5);
-    lgd.Layout.Tile = 'south';
+        'NumColumns', 7, 'Box', 'off', 'FontSize', 8.5);
+    lgd.Layout.Tile = 'north';
 
     save_refined(fig, outDir, 'FigR4_ControlZoom_Refined');
 end
