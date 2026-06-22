@@ -147,6 +147,9 @@ function plot_refined_ppc(d, C, outDir)
         'Position', [2, 2, 16.8, 17.2]);
     tl = tiledlayout(fig, 3, 2, 'Padding', 'compact', 'TileSpacing', 'compact');
     agentIds = 1:6;
+    hAgents = gobjects(6,1);
+    hBound = gobjects(1,1);
+    hSwitch = gobjects(1,1);
 
     for k = 1:numel(agentIds)
         i = agentIds(k);
@@ -158,10 +161,21 @@ function plot_refined_ppc(d, C, outDir)
         upper = d.bounds(valid,2,i);
         fill(ax, [tt; flipud(tt)], [lower; flipud(upper)], C.boundFill, ...
             'FaceAlpha', 0.35, 'EdgeColor', 'none', 'HandleVisibility', 'off');
-        plot(ax, tt, lower, '--', 'Color', C.red, 'LineWidth', 0.9, 'HandleVisibility', 'off');
+        hb = plot(ax, tt, lower, '--', 'Color', C.red, 'LineWidth', 0.9, ...
+            'DisplayName', 'PPC bounds');
         plot(ax, tt, upper, '--', 'Color', C.red, 'LineWidth', 0.9, 'HandleVisibility', 'off');
-        plot(ax, tt, d.rho(valid,i), '-', 'Color', C.agent(i,:), 'LineWidth', 1.7);
-        xline(ax, d.switchTime, '-.', 'Color', C.dark, 'LineWidth', 0.8, 'HandleVisibility', 'off');
+        hp = plot(ax, tt, d.rho(valid,i), '-', 'Color', C.agent(i,:), ...
+            'LineWidth', 1.7, 'DisplayName', sprintf('USV%d', i));
+        hs = xline(ax, d.switchTime, '-.', 'Color', C.dark, 'LineWidth', 0.8, ...
+            'DisplayName', '$t=50$ s');
+        hAgents(i) = hp;
+        if k == 1
+            hBound = hb;
+            hSwitch = hs;
+        else
+            hb.HandleVisibility = 'off';
+            hs.HandleVisibility = 'off';
+        end
         xlim(ax, [0 80]);
         ylim(ax, [-2 20]);
         title(ax, sprintf('USV%d', i), 'FontWeight', 'normal');
@@ -172,6 +186,10 @@ function plot_refined_ppc(d, C, outDir)
             xlabel(ax, 'Time (s)');
         end
     end
+    lgd = legend([hAgents; hBound; hSwitch], ...
+        {'USV1','USV2','USV3','USV4','USV5','USV6','PPC bounds','$t=50$ s'}, ...
+        'Orientation', 'horizontal', 'NumColumns', 4, 'Box', 'off', 'FontSize', 8.5);
+    lgd.Layout.Tile = 'south';
     save_refined(fig, outDir, 'FigR3_PPC_Active_Refined');
 end
 

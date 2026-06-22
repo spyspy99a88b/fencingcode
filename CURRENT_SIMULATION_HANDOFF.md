@@ -507,7 +507,7 @@ D:\matlab\bin\matlab.exe -batch "cd('C:\Users\Administrator\Documents\fencing la
 
 - `FigR1_Trajectory_Refined`：精修实际轨迹；
 - `FigR2_Observer_Refined`：三行 observer/x/y 图，含 Target 和 USV1--USV6 图例；用户已确认当前 `figures_latest/refined/FigR2_Observer_Refined.jpg` 为最终版；
-- `FigR3_PPC_Active_Refined`：已重新绘制为 3x2 六面板版本，展示 USV1--USV6；USV5/USV6 在 `t=50 s` 后按 `validMask` 截止，不继续画失效后的曲线；
+- `FigR3_PPC_Active_Refined`：已重新绘制为 3x2 六面板版本，展示 USV1--USV6；USV5/USV6 在 `t=50 s` 后按 `validMask` 截止，不继续画失效后的曲线；底部包含完整图例：USV1--USV6、PPC bounds 和 `t=50 s`；
 - `FigR4_ControlZoom_Refined`：主控制输入 + 两个嵌入式放大窗；用户指定使用 `C:\Users\Administrator\Documents\fencing latex\fencing code\figures_latest\refined\FigR4_ControlZoom_Refined.jpg`；
 - `FigR5_Safety_Refined`：实际艇间距、最小 active distance 和失效事件；用户已确认当前 `figures_latest/refined/FigR5_Safety_Refined.jpg` 为最终版。
 
