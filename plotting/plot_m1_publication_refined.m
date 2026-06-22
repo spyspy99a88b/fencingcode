@@ -24,7 +24,6 @@ function plot_m1_publication_refined(modelName)
     plot_refined_ppc(d, C, outDir);
     plot_refined_control_zoom(d, C, outDir);
     plot_refined_safety(d, C, outDir);
-    plot_refined_safety_3d(d, C, outDir);
 
     fprintf('Refined M1 figures generated in %s\n', outDir);
 end
@@ -245,143 +244,50 @@ function plot_control_inset(ax, d, tau, C, win, yText)
     ax.GridAlpha = 0.24;
 end
 
-function plot_refined_safety(d, C, outDir)
+function plot_refined_safety(d, ~, outDir)
     fig = figure('Name', 'Refined safety', 'Units', 'centimeters', ...
-        'Position', [2, 2, 17.2, 9.4]);
+        'Position', [2, 2, 17.8, 10.2]);
     tl = tiledlayout(fig, 1, 1, 'Padding', 'compact', 'TileSpacing', 'compact');
     ax = nexttile(tl); hold(ax, 'on'); box(ax, 'on'); grid(ax, 'on');
     style_axes(ax);
-    ax.GridAlpha = 0.16;
-    ax.MinorGridAlpha = 0.05;
+    ax.GridAlpha = 0.14;
+    ax.MinorGridAlpha = 0.04;
 
-    % A subtle phase wash separates the post-reconfiguration interval.
-    patch(ax, [d.switchTime 80 80 d.switchTime], [8 8 65 65], ...
-        [0.91 0.95 0.97], 'FaceAlpha', 0.34, 'EdgeColor', 'none', ...
-        'HandleVisibility', 'off');
+    % Bands replace dashed references and preserve a clean visual hierarchy.
+    hAvoid = patch(ax, [0 80 80 0], [9.65 9.65 10.35 10.35], ...
+        [0.90 0.27 0.30], 'FaceAlpha', 0.18, 'EdgeColor', 'none', ...
+        'DisplayName', '$d_{\rm avoid}=10$ m');
+    hSwitch = patch(ax, ...
+        [d.switchTime-0.28 d.switchTime+0.28 d.switchTime+0.28 d.switchTime-0.28], ...
+        [8 8 62 62], [0.28 0.43 0.54], 'FaceAlpha', 0.13, ...
+        'EdgeColor', 'none', 'DisplayName', 'Topology change');
 
     pairColors = safety_pair_colors(size(d.pairDist, 2));
-    hActive = gobjects(1);
-    hRemoved = gobjects(1);
+    hPairs = gobjects(size(d.pairDist, 2), 1);
     for k = 1:size(d.pairDist, 2)
         pair = d.pairs(k,:);
-        involvesRemoved = any(~d.activeAfter(pair));
-        plot(ax, d.t, d.pairDist(:,k), '-', ...
-            'Color', [pairColors(k,:) 0.54], 'LineWidth', 0.95, ...
-            'HandleVisibility', 'off');
-        if ~isgraphics(hActive)
-            hActive = plot(ax, NaN, NaN, '-', 'Color', [0.18 0.57 0.68], ...
-                'LineWidth', 1.35, 'DisplayName', 'Active pair distances');
-        end
-        if involvesRemoved
-            postMask = d.t >= d.switchTime;
-            plot(ax, d.t(postMask), d.pairDistAll(postMask,k), '--', ...
-                'Color', [pairColors(k,:) 0.76], 'LineWidth', 1.05, ...
-                'HandleVisibility', 'off');
-            if ~isgraphics(hRemoved)
-                hRemoved = plot(ax, NaN, NaN, '--', 'Color', [0.57 0.34 0.68], ...
-                    'LineWidth', 1.35, 'DisplayName', 'Pairs involving removed USVs');
-            end
-        end
+        edgeLabel = sprintf('USV%d--%d', pair(1), pair(2));
+        hPairs(k) = plot(ax, d.t, d.pairDist(:,k), '-', ...
+            'Color', [pairColors(k,:) 0.82], 'LineWidth', 1.05, ...
+            'DisplayName', edgeLabel);
     end
-    hMin = plot(ax, d.t, d.minPairActive, '-', 'Color', [0.025 0.30 0.43], ...
-        'LineWidth', 2.45, ...
-        'DisplayName', 'Minimum active distance');
-    hAvoid = yline(ax, 10, '--', 'Color', [0.88 0.25 0.28], 'LineWidth', 1.45, ...
-        'DisplayName', '$d_{\rm avoid}=10$ m');
+    hMin = plot(ax, d.t, d.minPairActive, '-', 'Color', [0.12 0.15 0.18], ...
+        'LineWidth', 1.05, 'DisplayName', '$d_{\min}^{\rm active}$');
     inactiveIds = find(~d.activeAfter);
-    eventText = sprintf('USVs %s misbehave (removed)', ...
+    eventText = sprintf('$t=50$ s: USVs %s removed', ...
         strjoin(string(inactiveIds), ', '));
-    xline(ax, d.switchTime, '-.', 'Color', C.dark, 'LineWidth', 1.2, ...
-        'HandleVisibility', 'off');
-    plot(ax, d.switchTime, 60, 'v', 'Color', C.dark, 'MarkerFaceColor', C.dark, ...
-        'MarkerSize', 6, 'HandleVisibility', 'off');
-    text(ax, d.switchTime + 1.2, 59, eventText, 'FontSize', 8.5, ...
+    text(ax, d.switchTime + 1.0, 59.7, eventText, 'FontSize', 8.2, ...
         'HorizontalAlignment', 'left', 'VerticalAlignment', 'top');
     xlabel(ax, 'Time (s)');
     ylabel(ax, 'Inter-USV distance (m)');
     xlim(ax, [0 80]);
-    ylim(ax, [8 65]);
-    lgd = legend(ax, [hActive hRemoved hMin hAvoid], ...
-        'Orientation', 'horizontal', 'NumColumns', 4, ...
-        'Box', 'off', 'FontSize', 8.2);
+    ylim(ax, [8 62]);
+    lgd = legend(ax, [hPairs; hMin; hAvoid; hSwitch], ...
+        'Orientation', 'horizontal', 'NumColumns', 6, ...
+        'Box', 'off', 'FontSize', 6.9);
+    lgd.ItemTokenSize = [12 7];
     lgd.Layout.Tile = 'north';
     save_refined(fig, outDir, 'FigR5_Safety_Refined');
-end
-
-function plot_refined_safety_3d(d, ~, outDir)
-    fig = figure('Name', '3-D safety map', 'Units', 'centimeters', ...
-        'Position', [2, 2, 17.2, 10.8]);
-    tl = tiledlayout(fig, 1, 1, 'Padding', 'compact', 'TileSpacing', 'compact');
-    ax = nexttile(tl); hold(ax, 'on'); box(ax, 'on'); grid(ax, 'on');
-    style_axes(ax);
-    ax.GridAlpha = 0.18;
-    ax.MinorGridAlpha = 0.05;
-
-    numPairs = size(d.pairDist, 2);
-    pairColors = safety_pair_colors(numPairs);
-    lineIdx = 1:4:numel(d.t);
-
-    % Safety threshold and topology-switch planes provide physical context.
-    hAvoidPlane = surf(ax, [0 80; 0 80], ...
-        [0.45 0.45; numPairs+0.5 numPairs+0.5], ...
-        10 * ones(2), 'FaceColor', [0.92 0.23 0.27], 'FaceAlpha', 0.12, ...
-        'EdgeColor', 'none', 'DisplayName', '$d_{\rm avoid}=10$ m');
-    hSwitchPlane = surf(ax, d.switchTime * ones(2), ...
-        [0.45 numPairs+0.5; 0.45 numPairs+0.5], [8 8; 62 62], ...
-        'FaceColor', [0.30 0.44 0.54], 'FaceAlpha', 0.10, ...
-        'EdgeColor', 'none', 'DisplayName', 'Topology switch at $t=50$ s');
-
-    for k = 1:numPairs
-        pair = d.pairs(k,:);
-        isRetained = all(d.activeAfter(pair));
-        if isRetained
-            curveColor = pairColors(k,:);
-            curveAlpha = 0.82;
-            curveWidth = 1.15;
-        else
-            curveColor = 0.68 * pairColors(k,:) + 0.32 * [0.72 0.74 0.78];
-            curveAlpha = 0.58;
-            curveWidth = 0.90;
-        end
-        yPair = k * ones(size(lineIdx));
-        plot3(ax, d.t(lineIdx), yPair, d.pairDist(lineIdx,k), '-', ...
-            'Color', [curveColor curveAlpha], 'LineWidth', curveWidth, ...
-            'HandleVisibility', 'off');
-    end
-
-    hRetained = plot3(ax, NaN, NaN, NaN, '-', 'Color', [0.10 0.58 0.62], ...
-        'LineWidth', 1.6, 'DisplayName', 'Retained active pairs');
-    hRemoved = plot3(ax, NaN, NaN, NaN, '-', 'Color', [0.72 0.48 0.60], ...
-        'LineWidth', 1.2, 'DisplayName', 'Pairs removed at $t=50$ s');
-    hMin = plot3(ax, d.t, 0.35 * ones(size(d.t)), d.minPairActive, '-', ...
-        'Color', [0.025 0.25 0.36], 'LineWidth', 2.5, ...
-        'DisplayName', 'Minimum active distance');
-
-    pairLabels = compose('%d--%d', d.pairs(:,1), d.pairs(:,2));
-    pairTickIds = 1:2:numPairs;
-    yticks(ax, pairTickIds);
-    yticklabels(ax, pairLabels(pairTickIds));
-    xlabel(ax, 'Time (s)');
-    ylabel(ax, 'USV pair');
-    zlabel(ax, 'Inter-USV distance (m)');
-    xlim(ax, [0 80]);
-    ylim(ax, [0 numPairs+0.5]);
-    zlim(ax, [8 62]);
-    view(ax, [-38 25]);
-    camproj(ax, 'perspective');
-    ax.YDir = 'reverse';
-    ax.YMinorTick = 'off';
-    ax.FontSize = 8.5;
-
-    text(ax, d.switchTime + 1.0, numPairs + 0.3, 58.5, ...
-        '$t=50$ s: USVs 5, 6 removed', 'FontSize', 8.2, ...
-        'HorizontalAlignment', 'left', 'VerticalAlignment', 'top');
-
-    lgd = legend(ax, [hRetained hRemoved hMin hAvoidPlane hSwitchPlane], ...
-        'Orientation', 'horizontal', 'NumColumns', 5, ...
-        'Box', 'off', 'FontSize', 7.4);
-    lgd.Layout.Tile = 'north';
-    save_refined(fig, outDir, 'FigR5B_SafetyMap_3D');
 end
 
 %% ========================= data =========================
@@ -426,7 +332,7 @@ function d = load_case(modelName)
     obsErrMasked = obsErr;
     obsErrMasked(~validMask) = NaN;
 
-    [pairDist, minPair, pairDistAll, pairs] = pair_distances(pAgent, validMask);
+    [pairDist, minPair, pairs] = pair_distances(pAgent, validMask);
 
     d = struct();
     d.t = t;
@@ -446,21 +352,18 @@ function d = load_case(modelName)
     d.obsMaxActive = max(obsErrMasked, [], 2, 'omitnan');
     d.obsMeanActive = mean(obsErrMasked, 2, 'omitnan');
     d.pairDist = pairDist;
-    d.pairDistAll = pairDistAll;
     d.pairs = pairs;
     d.minPairActive = minPair;
 end
 
-function [pairDist, minPair, pairDistAll, pairs] = pair_distances(pAgent, validMask)
+function [pairDist, minPair, pairs] = pair_distances(pAgent, validMask)
     pairs = nchoosek(1:6, 2);
     numPts = size(pAgent, 1);
     pairDist = nan(numPts, size(pairs,1));
-    pairDistAll = nan(numPts, size(pairs,1));
     for k = 1:size(pairs,1)
         i = pairs(k,1);
         j = pairs(k,2);
         d = vecnorm(pAgent(:,:,i) - pAgent(:,:,j), 2, 2);
-        pairDistAll(:,k) = d;
         d(~(validMask(:,i) & validMask(:,j))) = NaN;
         pairDist(:,k) = d;
     end
@@ -522,14 +425,27 @@ function C = refined_colors()
 end
 
 function colors = safety_pair_colors(n)
-    anchors = [0.08 0.46 0.70;
-               0.10 0.66 0.58;
-               0.95 0.70 0.20;
-               0.88 0.34 0.32;
-               0.52 0.34 0.70];
-    colors = interp1(linspace(0, 1, size(anchors,1)), anchors, ...
-        linspace(0, 1, n), 'pchip');
-    colors = min(max(colors, 0), 1);
+    palette = [0.00 0.45 0.70;
+               0.90 0.62 0.00;
+               0.00 0.62 0.45;
+               0.84 0.37 0.00;
+               0.34 0.71 0.91;
+               0.80 0.47 0.65;
+               0.73 0.68 0.08;
+               0.13 0.29 0.54;
+               0.65 0.20 0.32;
+               0.32 0.56 0.27;
+               0.45 0.32 0.66;
+               0.55 0.38 0.24;
+               0.10 0.64 0.72;
+               0.93 0.49 0.39;
+               0.42 0.46 0.49];
+    if n <= size(palette, 1)
+        colors = palette(1:n,:);
+    else
+        colors = interp1(1:size(palette,1), palette, ...
+            linspace(1, size(palette,1), n), 'pchip');
+    end
 end
 
 function set_refined_defaults()
