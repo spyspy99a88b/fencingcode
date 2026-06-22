@@ -1,7 +1,7 @@
 # 当前仿真程序完整交接说明
 
-> 最后核对日期：2026-06-21  
-> 当前代码目录：`C:\Users\Administrator\Documents\fencing latex\fencing code`  
+> 最后核对日期：2026-06-23
+> 当前代码目录：`C:\Users\Administrator\Documents\fencing latex\fencing code`
 > 论文目录：`C:\Users\Administrator\Documents\fencing latex\fencing-paper`
 
 ## 1. 本文件的地位
@@ -15,11 +15,12 @@
 
 旧文件 `CODE_HANDOFF.md`、`DISTURB_MODELS_REVIEW.md` 和论文目录中的 `HANDOFF.md` 仍有参考价值，但其中部分模型名、饱和限制和绘图入口已经过时。例如旧文档常写 `1000 N / 500 Nm`，当前四个消融模型实际使用 `800 N / 400 Nm`。
 
-最近的工作主要是绘图精修，没有重新运行四个 Simulink 模型。因此：
+最近的工作主要是绘图精修，没有重新运行四个 Simulink 模型。2026-06-23 的最新工作集中在三维时空围捕轨迹图 `FigH1_Spatiotemporal_Trajectory`，该图已被用户指定为最终版仿真一号图。因此：
 
 - `.slx` 和 `sim_results/*_res.mat` 决定仿真数据；
 - 绘图脚本的更新时间可能晚于结果文件；
 - 图片更新不等于仿真结果更新。
+- 当前仿真一号图最终版 PDF：`C:\Users\Administrator\Documents\fencing latex\fencing code\figures_OE\abl_M1_proposed_highlight\FigH1_Spatiotemporal_Trajectory.pdf`。
 
 ## 2. 研究问题和程序结构
 
@@ -537,22 +538,40 @@ D:\matlab\bin\matlab.exe -batch "cd('C:\Users\Administrator\Documents\fencing la
 
 文件：`FigH1_Spatiotemporal_Trajectory`
 
+用户已指定以下文件作为最终版仿真一号图：
+
+```text
+C:\Users\Administrator\Documents\fencing latex\fencing code\figures_OE\abl_M1_proposed_highlight\FigH1_Spatiotemporal_Trajectory.pdf
+```
+
+同名输出包括：
+
+- `FigH1_Spatiotemporal_Trajectory.eps`：矢量 EPS，用于 LaTeX 或矢量后期；
+- `FigH1_Spatiotemporal_Trajectory.jpg`：600 dpi 预览位图；
+- `FigH1_Spatiotemporal_Trajectory.pdf`：600 dpi 位图 PDF，便于论文软件中编辑和查看。
+
 当前约定：
 
 - 三维坐标为 `(x,y,t)`；
+- 图标题已删除；
 - Target 为黑色虚线；
 - USV1--USV4 为较强主色；
 - USV5、USV6 使用较柔和的鼠尾草绿和钢青色，线宽略低；
 - 时间管面使用弱透明度；
+- xoy 底面使用浅蓝海水风格真彩色平面和淡波纹线；
 - 多边形时刻：`[0,15,30,45,60,75] s`；
 - 50 s 前多边形包含 6 个 active USV；
 - 60/75 s 只包含 USV1--USV4，因此是四边形，不应称为六边形；
 - 同一时刻的 polygon、nodes、`t=xx s` 标签使用同一时间颜色；
 - 节点无白色外圈；
+- `t=0` 的 xoy 底面节点已恢复显示，与其他时刻截面一致；底面中心 target 不额外标记；
 - 标签位于对应 `z=t` 平面；
 - 标签 x 坐标为 `max(x_polygon)+20 m`；
 - x 轴自动扩展，避免标签裁切；
-- 时间 colormap 为自定义靛蓝--蓝--青绿--黄绿--金色。
+- 时间 colormap 为自定义靛蓝--蓝--青绿--黄绿--金色；
+- `t=50 s, USV5, USV6 misbehaved` 红色标注位于 45 s 截面左上方空白区域；
+- 标注有一个短箭头指向 50 s 截面中心，箭头已缩短并沿反方向平移，避免贴住主轨迹；
+- 坐标范围已经回退到放宽前版本，只额外扩展 x 轴以容纳右侧 `t=xx s` 标签。
 
 #### FigH2: Topology reconstruction frames
 
@@ -689,6 +708,18 @@ USE_SAT        = 1;
 
 绘图脚本只写入 `fencing code/figures_OE`，不会自动复制到 `fencing-paper`。
 
+当前最新认可图片镜像目录：
+
+```text
+C:\Users\Administrator\Documents\fencing latex\fencing code\figures_latest
+```
+
+该目录下：
+
+- `refined/` 保存最新 M1 主文精修图；
+- `highlight/` 保存最新 M1 亮点图，其中 `FigH1_Spatiotemporal_Trajectory` 对应最终版仿真一号图；
+- `ablation/` 保存最新默认 pairwise 消融图。
+
 论文提交前必须人工确认：
 
 1. `main.tex` 实际引用的文件名；
@@ -767,6 +798,7 @@ compare_ablation_paper()
 - M3 隔离 self-ordering guidance；
 - M4 隔离 elastic PPC；
 - 保存结果、消融表和绘图脚本已经形成完整链路；
+- 2026-06-23 已固定 `FigH1_Spatiotemporal_Trajectory.pdf` 为最终版仿真一号图；
 - 后续最大的风险不是缺少功能，而是混用旧模型、旧参数、旧结果和新图片。
 
 任何接手者应先确认自己操作的是 `abl_M1`--`abl_M4`，再开始修改。
