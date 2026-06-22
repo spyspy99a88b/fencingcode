@@ -93,14 +93,14 @@ function plot_spatiotemporal_trajectory(d, C, outDir)
             'FontWeight', 'bold', 'Color', timeColor, ...
             'HorizontalAlignment', 'left', 'VerticalAlignment', 'middle');
     end
+    annotate_misbehavior_event(ax, d);
+
     xlabel(ax, '$x$ (m)'); ylabel(ax, '$y$ (m)'); zlabel(ax, 'Time (s)');
     title(ax, 'Spatiotemporal evolution of the enclosing formation', ...
         'FontWeight', 'normal');
     view(ax, 42, 26); axis(ax, 'tight');
     xBounds = xlim(ax);
-    yBounds = ylim(ax);
-    xlim(ax, [xBounds(1)-7, max(xBounds(2)+4,maxLabelX+16)]);
-    ylim(ax, [yBounds(1)-8, yBounds(2)+8]);
+    xlim(ax, [xBounds(1), max(xBounds(2),maxLabelX+15)]);
     uistack(oceanHandle, 'bottom');
     ax.GridAlpha = 0.18;
     legend(ax, [h; findobj(ax,'DisplayName','Target')], ...
@@ -109,6 +109,23 @@ function plot_spatiotemporal_trajectory(d, C, outDir)
     cb.Label.String = 'Time (s)';
     clim(ax, [d.t(1) d.t(end)]);
     save_figure(fig, outDir, 'FigH1_Spatiotemporal_Trajectory');
+end
+
+function annotate_misbehavior_event(ax, d)
+    [~, k45] = min(abs(d.t-45));
+    active45 = find(d.validMask(k45,:));
+    xSnap = reshape(d.pAgent(k45,1,active45), [], 1);
+    ySnap = reshape(d.pAgent(k45,2,active45), [], 1);
+    xText = min(xSnap) - 150;
+    yText = max(ySnap) + 34;
+    zText = d.t(k45) + 4.5;
+    text(ax, xText, yText, zText, ...
+        {'$t=50$ s'; 'USV5, USV6 misbehaved'}, ...
+        'FontSize', 7.8, 'FontWeight', 'bold', ...
+        'Color', [0.72 0.08 0.10], ...
+        'HorizontalAlignment', 'left', ...
+        'VerticalAlignment', 'middle', ...
+        'HandleVisibility', 'off');
 end
 
 function oceanHandle = draw_ocean_floor(ax, d)
