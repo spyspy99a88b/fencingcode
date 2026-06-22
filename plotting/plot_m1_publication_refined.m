@@ -24,6 +24,7 @@ function plot_m1_publication_refined(modelName)
     plot_refined_ppc(d, C, outDir);
     plot_refined_control_zoom(d, C, outDir);
     plot_refined_safety(d, C, outDir);
+    plot_refined_safety_3d(d, C, outDir);
 
     fprintf('Refined M1 figures generated in %s\n', outDir);
 end
@@ -305,6 +306,81 @@ function plot_refined_safety(d, C, outDir)
         'Box', 'off', 'FontSize', 8.2);
     lgd.Layout.Tile = 'north';
     save_refined(fig, outDir, 'FigR5_Safety_Refined');
+end
+
+function plot_refined_safety_3d(d, ~, outDir)
+    fig = figure('Name', '3-D safety map', 'Units', 'centimeters', ...
+        'Position', [2, 2, 17.2, 10.8]);
+    tl = tiledlayout(fig, 1, 1, 'Padding', 'compact', 'TileSpacing', 'compact');
+    ax = nexttile(tl); hold(ax, 'on'); box(ax, 'on'); grid(ax, 'on');
+    style_axes(ax);
+    ax.GridAlpha = 0.18;
+    ax.MinorGridAlpha = 0.05;
+
+    numPairs = size(d.pairDist, 2);
+    pairColors = safety_pair_colors(numPairs);
+    lineIdx = 1:4:numel(d.t);
+
+    % Safety threshold and topology-switch planes provide physical context.
+    surf(ax, [0 80; 0 80], [0.45 0.45; numPairs+0.5 numPairs+0.5], ...
+        10 * ones(2), 'FaceColor', [0.92 0.23 0.27], 'FaceAlpha', 0.12, ...
+        'EdgeColor', 'none', 'HandleVisibility', 'off');
+    surf(ax, d.switchTime * ones(2), ...
+        [0.45 numPairs+0.5; 0.45 numPairs+0.5], [8 8; 65 65], ...
+        'FaceColor', [0.30 0.44 0.54], 'FaceAlpha', 0.10, ...
+        'EdgeColor', 'none', 'HandleVisibility', 'off');
+
+    for k = 1:numPairs
+        yPair = k * ones(size(lineIdx));
+        plot3(ax, d.t(lineIdx), yPair, d.pairDist(lineIdx,k), '-', ...
+            'Color', [pairColors(k,:) 0.70], 'LineWidth', 1.0, ...
+            'HandleVisibility', 'off');
+        pair = d.pairs(k,:);
+        if any(~d.activeAfter(pair))
+            postIdx = lineIdx(d.t(lineIdx) >= d.switchTime);
+            plot3(ax, d.t(postIdx), k * ones(size(postIdx)), ...
+                d.pairDistAll(postIdx,k), '--', ...
+                'Color', [pairColors(k,:) 0.90], 'LineWidth', 1.15, ...
+                'HandleVisibility', 'off');
+        end
+    end
+
+    hActive = plot3(ax, NaN, NaN, NaN, '-', 'Color', [0.18 0.57 0.68], ...
+        'LineWidth', 1.5, 'DisplayName', 'Active pair trajectories');
+    hRemoved = plot3(ax, NaN, NaN, NaN, '--', 'Color', [0.57 0.34 0.68], ...
+        'LineWidth', 1.5, 'DisplayName', 'Removed-USV trajectories');
+    hMin = plot3(ax, d.t, 0.35 * ones(size(d.t)), d.minPairActive, '-', ...
+        'Color', [0.025 0.25 0.36], 'LineWidth', 2.5, ...
+        'DisplayName', 'Minimum active distance');
+    hAvoid = plot3(ax, [0 80], [0.45 0.45], [10 10], '--', ...
+        'Color', [0.88 0.25 0.28], 'LineWidth', 1.6, ...
+        'DisplayName', '$d_{\rm avoid}=10$ m');
+
+    pairLabels = compose('%d--%d', d.pairs(:,1), d.pairs(:,2));
+    pairTickIds = 1:2:numPairs;
+    yticks(ax, pairTickIds);
+    yticklabels(ax, pairLabels(pairTickIds));
+    xlabel(ax, 'Time (s)');
+    ylabel(ax, 'USV pair');
+    zlabel(ax, 'Inter-USV distance (m)');
+    xlim(ax, [0 80]);
+    ylim(ax, [0 numPairs+0.5]);
+    zlim(ax, [8 65]);
+    view(ax, [-38 25]);
+    camproj(ax, 'perspective');
+    ax.YDir = 'reverse';
+    ax.YMinorTick = 'off';
+    ax.FontSize = 8.5;
+
+    text(ax, d.switchTime + 1.0, numPairs + 0.3, 61, ...
+        '$t=50$ s: USVs 5, 6 removed', 'FontSize', 8.2, ...
+        'HorizontalAlignment', 'left', 'VerticalAlignment', 'top');
+
+    lgd = legend(ax, [hActive hRemoved hMin hAvoid], ...
+        'Orientation', 'horizontal', 'NumColumns', 4, ...
+        'Box', 'off', 'FontSize', 8.0);
+    lgd.Layout.Tile = 'north';
+    save_refined(fig, outDir, 'FigR5B_SafetyMap_3D');
 end
 
 %% ========================= data =========================
