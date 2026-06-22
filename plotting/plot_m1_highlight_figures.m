@@ -29,6 +29,7 @@ function plot_spatiotemporal_trajectory(d, C, outDir)
     style_axes(ax);
 
     timeMap = highlight_time_colormap(256);
+    oceanHandle = draw_ocean_floor(ax, d);
     theta = linspace(0, 2*pi, 64).';
     tubeIdx = 1:30:numel(d.t);
     X = d.p0(tubeIdx,1).' + d.radius*cos(theta);
@@ -91,6 +92,7 @@ function plot_spatiotemporal_trajectory(d, C, outDir)
     view(ax, 42, 26); axis(ax, 'tight');
     xBounds = xlim(ax);
     xlim(ax, [xBounds(1), max(xBounds(2),maxLabelX+15)]);
+    uistack(oceanHandle, 'bottom');
     ax.GridAlpha = 0.18;
     legend(ax, [h; findobj(ax,'DisplayName','Target')], ...
         'Location', 'northeast', 'NumColumns', 2, 'Box', 'off');
@@ -98,6 +100,42 @@ function plot_spatiotemporal_trajectory(d, C, outDir)
     cb.Label.String = 'Time (s)';
     clim(ax, [d.t(1) d.t(end)]);
     save_figure(fig, outDir, 'FigH1_Spatiotemporal_Trajectory');
+end
+
+function oceanHandle = draw_ocean_floor(ax, d)
+    xAll = [d.p0(:,1); reshape(d.pAgent(:,1,:), [], 1)];
+    yAll = [d.p0(:,2); reshape(d.pAgent(:,2,:), [], 1)];
+    xAll = xAll(isfinite(xAll));
+    yAll = yAll(isfinite(yAll));
+    padX = 18;
+    padY = 16;
+    xLim = [min(xAll)-padX, max(xAll)+48];
+    yLim = [min(yAll)-padY, max(yAll)+padY];
+
+    nx = 120;
+    ny = 96;
+    [Xw, Yw] = meshgrid(linspace(xLim(1), xLim(2), nx), ...
+                        linspace(yLim(1), yLim(2), ny));
+    wave = 0.5 + 0.5*sin(0.075*Xw + 0.11*Yw) .* cos(0.055*Xw - 0.095*Yw);
+    ripple = 0.5 + 0.5*sin(0.18*Xw - 0.04*Yw);
+    texture = 0.72*wave + 0.28*ripple;
+    shallow = reshape([0.78 0.93 0.98], 1, 1, 3);
+    deep = reshape([0.42 0.76 0.88], 1, 1, 3);
+    Cw = shallow.*(1-texture) + deep.*texture;
+    Zw = zeros(size(Xw));
+    oceanHandle = surf(ax, Xw, Yw, Zw, Cw, ...
+        'FaceColor', 'texturemap', 'EdgeColor', 'none', ...
+        'FaceAlpha', 0.58, 'AmbientStrength', 0.65, ...
+        'DiffuseStrength', 0.35, 'HandleVisibility', 'off');
+
+    waveColor = [0.72 0.93 0.99];
+    for yy = linspace(yLim(1)+5, yLim(2)-5, 10)
+        xx = linspace(xLim(1), xLim(2), 260);
+        yyLine = yy + 1.0*sin(0.055*xx + 0.12*yy);
+        plot3(ax, xx, yyLine, 0.12*ones(size(xx)), '-', ...
+            'Color', [waveColor 0.22], 'LineWidth', 0.55, ...
+            'HandleVisibility', 'off');
+    end
 end
 
 function plot_topology_movie_frames(d, C, outDir)
