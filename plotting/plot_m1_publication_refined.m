@@ -204,9 +204,9 @@ function plot_refined_control_zoom(d, C, outDir)
     xlim(ax2, [0 80]); ylim(ax2, 1.25 * [-d.tauRLimit d.tauRLimit]);
     xlabel(ax2, 'Time (s)'); ylabel(ax2, '$\tau_{r,i}$ (Nm)');
 
-    insetU = axes(fig, 'Position', [0.755 0.79 0.145 0.115]);
+    insetU = axes(fig, 'Position', [0.785 0.79 0.145 0.115]);
     plot_control_inset(insetU, d, tauU, C, zoomWin, '$\tau_{u,i}$');
-    insetR = axes(fig, 'Position', [0.755 0.335 0.145 0.115]);
+    insetR = axes(fig, 'Position', [0.785 0.335 0.145 0.115]);
     plot_control_inset(insetR, d, tauR, C, zoomWin, '$\tau_{r,i}$');
 
     save_refined(fig, outDir, 'FigR4_ControlZoom_Refined');
