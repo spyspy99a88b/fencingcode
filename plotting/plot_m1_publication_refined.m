@@ -144,22 +144,23 @@ end
 
 function plot_refined_ppc(d, C, outDir)
     fig = figure('Name', 'Refined PPC', 'Units', 'centimeters', ...
-        'Position', [2, 2, 16.8, 12.2]);
-    tl = tiledlayout(fig, 2, 2, 'Padding', 'compact', 'TileSpacing', 'compact');
-    activeIds = find(d.activeAfter);
+        'Position', [2, 2, 16.8, 17.2]);
+    tl = tiledlayout(fig, 3, 2, 'Padding', 'compact', 'TileSpacing', 'compact');
+    agentIds = 1:6;
 
-    for k = 1:numel(activeIds)
-        i = activeIds(k);
+    for k = 1:numel(agentIds)
+        i = agentIds(k);
         ax = nexttile(tl, k); hold(ax, 'on'); box(ax, 'on'); grid(ax, 'on');
         style_axes(ax);
-        tt = d.t;
-        lower = d.bounds(:,1,i);
-        upper = d.bounds(:,2,i);
+        valid = d.validMask(:,i);
+        tt = d.t(valid);
+        lower = d.bounds(valid,1,i);
+        upper = d.bounds(valid,2,i);
         fill(ax, [tt; flipud(tt)], [lower; flipud(upper)], C.boundFill, ...
             'FaceAlpha', 0.35, 'EdgeColor', 'none', 'HandleVisibility', 'off');
         plot(ax, tt, lower, '--', 'Color', C.red, 'LineWidth', 0.9, 'HandleVisibility', 'off');
         plot(ax, tt, upper, '--', 'Color', C.red, 'LineWidth', 0.9, 'HandleVisibility', 'off');
-        plot(ax, tt, d.rho(:,i), '-', 'Color', C.agent(i,:), 'LineWidth', 1.7);
+        plot(ax, tt, d.rho(valid,i), '-', 'Color', C.agent(i,:), 'LineWidth', 1.7);
         xline(ax, d.switchTime, '-.', 'Color', C.dark, 'LineWidth', 0.8, 'HandleVisibility', 'off');
         xlim(ax, [0 80]);
         ylim(ax, [-2 20]);
@@ -167,7 +168,7 @@ function plot_refined_ppc(d, C, outDir)
         if mod(k,2) == 1
             ylabel(ax, '$\rho_{e,i}$ (m)');
         end
-        if k > 2
+        if k > 4
             xlabel(ax, 'Time (s)');
         end
     end

@@ -507,14 +507,14 @@ D:\matlab\bin\matlab.exe -batch "cd('C:\Users\Administrator\Documents\fencing la
 
 - `FigR1_Trajectory_Refined`：精修实际轨迹；
 - `FigR2_Observer_Refined`：三行 observer/x/y 图，含 Target 和 USV1--USV6 图例；用户已确认当前 `figures_latest/refined/FigR2_Observer_Refined.jpg` 为最终版；
-- `FigR3_PPC_Active_Refined`：当前版本不对，论文图应显示 6 艘 USV，而不是只显示切换后仍 active 的 USV1--USV4；后续需要重新修改该图；
+- `FigR3_PPC_Active_Refined`：已重新绘制为 3x2 六面板版本，展示 USV1--USV6；USV5/USV6 在 `t=50 s` 后按 `validMask` 截止，不继续画失效后的曲线；
 - `FigR4_ControlZoom_Refined`：主控制输入 + 两个嵌入式放大窗；用户指定使用 `C:\Users\Administrator\Documents\fencing latex\fencing code\figures_latest\refined\FigR4_ControlZoom_Refined.jpg`；
 - `FigR5_Safety_Refined`：实际艇间距、最小 active distance 和失效事件；用户已确认当前 `figures_latest/refined/FigR5_Safety_Refined.jpg` 为最终版。
 
 当前 refined 图状态：
 
 - R2：最终版；
-- R3：未通过，需要改成 6 艘船全部展示；
+- R3：已重画为 6 艘船版本，当前文件为 `figures_latest/refined/FigR3_PPC_Active_Refined.jpg`，待用户最终确认；
 - R4：使用 `figures_latest/refined/FigR4_ControlZoom_Refined.jpg`；
 - R5：最终版。
 
