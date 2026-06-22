@@ -17,7 +17,7 @@ Open MATLAB in the repository root, then run:
 
 ```matlab
 addpath(genpath(pwd))
-savere_paper('models/abl_M1_proposed')
+savere_paper('abl_M1_proposed')
 ```
 
 For an existing saved result placed under `sim_results/`, generate figures with:
