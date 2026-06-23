@@ -551,6 +551,8 @@ D:\matlab\bin\matlab.exe -batch "cd('C:\Users\Administrator\Documents\fencing la
 C:\Users\Administrator\Documents\fencing latex\fencing code\figures_OE\abl_M1_proposed_highlight\FigH1_Spatiotemporal_Trajectory.pdf
 ```
 
+2026-06-23 用户手动编辑该 PDF，在图中加入了小潜艇元素；此手动编辑后的 PDF 是当前最终版。不要用 `plot_m1_highlight_figures.m` 重新生成后直接覆盖它，除非重新把潜艇元素补回去。
+
 同名输出包括：
 
 - `FigH1_Spatiotemporal_Trajectory.eps`：矢量 EPS，用于 LaTeX 或矢量后期；
